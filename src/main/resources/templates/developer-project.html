@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Project Bugs')}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container py-5">
+
+  <!-- Header -->
+  <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+      <h2 th:text="${projectName != null ? projectName : 'Assigned Bugs'}"></h2>
+      <p class="sub" th:if="${projectName != null}">
+        <i class="bi bi-person me-1"></i><span th:text="${managerName}"></span> ·
+        <i class="bi bi-calendar3 me-1 ms-1"></i><span th:text="${startDate}"></span>
+      </p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <!-- Project switcher -->
+      <div th:if="${#lists.size(allProjects) > 1}" class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+          <i class="bi bi-folder me-1"></i>Switch Project
+        </button>
+        <ul class="dropdown-menu">
+          <li th:each="p : ${allProjects}">
+            <a class="dropdown-item" th:href="@{/developer/project(name=${p.projectName})}"
+               th:text="${p.projectName}"
+               th:classappend="${p.projectName == projectName ? ' active' : ''}"></a>
+          </li>
+        </ul>
+      </div>
+      <a class="btn btn-outline-secondary btn-sm" href="/developer/projects">
+        <i class="bi bi-folder me-1"></i>All Projects
+      </a>
+    </div>
+  </div>
+
+  <!-- Flash messages -->
+  <div class="alert alert-success d-flex gap-2" th:if="${message}"><i class="bi bi-check-circle-fill"></i><span th:text="${message}"></span></div>
+  <div class="alert alert-info    d-flex gap-2" th:if="${commentSuccess}"><i class="bi bi-chat-dots-fill"></i><span th:text="${commentSuccess}"></span></div>
+  <div class="alert alert-warning d-flex gap-2" th:if="${commentError}"><i class="bi bi-exclamation-triangle-fill"></i><span th:text="${commentError}"></span></div>
+
+  <div th:if="${projectName == null}" class="card card-soft">
+    <div class="empty-state py-5">
+      <i class="bi bi-folder2-open text-indent"></i>
+      <div class="fw-semibold mb-1">No project assigned yet</div>
+      <p class="small text-indent">Contact your Project Manager to be added to a project.</p>
+    </div>
+  </div>
+
+  <div th:if="${projectName != null}">
+    <div class="row g-4">
+
+      <!-- Team sidebar -->
+      <div class="col-lg-3">
+        <div class="card card-soft">
+          <div class="card-header px-3 py-2">
+            <i class="bi bi-people-fill me-1"></i>Team
+            <span class="badge bg-secondary rounded-pill ms-1" th:text="${#lists.size(team)}"></span>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center py-2"
+                th:each="member : ${team}">
+              <span class="small fw-semibold" th:text="${member.userName}"></span>
+              <span class="badge rounded-pill small"
+                    th:classappend="${member.roleValue == 'ProjectManager' ? 'bg-primary' : member.roleValue == 'Tester' ? 'bg-info text-dark' : 'bg-success'}"
+                    th:text="${member.roleValue}"></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bugs -->
+      <div class="col-lg-9">
+        <div class="card card-soft">
+          <div class="card-header px-3 py-2 d-flex justify-content-between">
+            <span><i class="bi bi-bug me-1"></i>Assigned Bugs</span>
+            <span class="badge bg-secondary rounded-pill" th:text="${#lists.size(bugs)}"></span>
+          </div>
+
+          <div th:if="${#lists.isEmpty(bugs)}" class="empty-state py-4">
+            <i class="bi bi-check2-circle text-success"></i>
+            <div>No bugs currently assigned to you.</div>
+          </div>
+
+          <div th:each="bug : ${bugs}" class="border-bottom p-3">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+              <div>
+                <span class="fw-bold" th:text="${bug.bugTitle}"></span>
+                <span class="text-indent small ms-2" th:text="${bug.bugId}"></span>
+              </div>
+              <div class="d-flex gap-1 flex-wrap align-items-center">
+                <!-- Status -->
+                <span th:text="${bug.bugStatus.dbValue}" class="badge rounded-pill"
+                      th:classappend="${bug.bugStatus.dbValue == 'Open' ? 'badge-open' : bug.bugStatus.dbValue == 'Assigned' ? 'badge-assigned' : 'badge-closed'}"></span>
+                <!-- Severity (null-safe) -->
+                <span th:if="${bug.severity != null}" th:text="${bug.severity.dbValue}" class="badge"
+                      th:classappend="${bug.severity.dbValue == 'critical' ? 'sev-critical' : bug.severity.dbValue == 'major' ? 'sev-major' : bug.severity.dbValue == 'minor' ? 'sev-minor' : 'sev-trivial'}"></span>
+                <!-- Close button (only when manager has approved) -->
+                <form th:if="${bug.markedForClosing and bug.bugStatus.dbValue != 'Closed'}"
+                      method="post" action="/developer/bugs/close" class="d-inline">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                  <input type="hidden" name="bugId"       th:value="${bug.bugId}">
+                  <input type="hidden" name="projectName" th:value="${projectName}">
+                  <button class="btn btn-sm btn-success" type="submit">
+                    <i class="bi bi-check-lg me-1"></i>Close
+                  </button>
+                </form>
+                <span th:if="${!bug.markedForClosing and bug.bugStatus.dbValue != 'Closed'}"
+                      class="badge bg-light text-secondary border small">
+                  Awaiting manager approval
+                </span>
+              </div>
+            </div>
+            <p class="text-indent small mb-1" th:text="${bug.bugDesc}"></p>
+            <div class="text-indent small mb-1" th:if="${bug.openDate}">
+              <i class="bi bi-calendar3 me-1"></i><span th:text="${bug.openDate}"></span>
+            </div>
+            <!-- Comments -->
+            <div th:replace="~{layout :: comments(${bug.bugId}, ${comments},
+                  '/developer/project' + (${projectName != null} ? '?name=' + ${projectName} : ''))}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

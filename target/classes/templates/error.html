@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Error')}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container py-5" style="max-width:600px">
+  <div class="card card-soft text-center p-5">
+    <div style="font-size:4rem;font-weight:900;color:#4f46e5;line-height:1"
+         th:text="${errorCode ?: '?'}">500</div>
+    <h2 class="mt-3 fw-bold" th:text="${errorTitle ?: 'Error'}">Something went wrong</h2>
+    <p class="text-indent mb-4"
+       th:text="${errorMessage ?: 'An unexpected error occurred.'}">Please try again.</p>
+    <div class="d-flex justify-content-center gap-2">
+      <a class="btn btn-primary" href="/home">
+        <i class="bi bi-house me-1"></i>Home
+      </a>
+      <button class="btn btn-outline-secondary" onclick="history.back()">
+        <i class="bi bi-arrow-left me-1"></i>Go back
+      </button>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

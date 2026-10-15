@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     HEAD FRAGMENT  –  th:replace="~{layout :: head('Page Title')}"
+     ════════════════════════════════════════════════════════════════════ -->
+<head th:fragment="head(title)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${title} + ' · BugTracker'">BugTracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    /* ── Palette ── */
+    :root{
+      --bt-primary:#4f46e5;
+      --bt-primary-dark:#3730a3;
+      --bt-surface:#f8f7ff;
+      --bt-card-shadow:0 4px 24px rgba(79,70,229,.10);
+    }
+
+    /* ── Base ── */
+    body{background:var(--bt-surface);font-family:'Inter',system-ui,sans-serif;}
+
+    /* ── Navbar ── */
+    .navbar-bt{background:#1e1b4b;}
+    .navbar-bt .navbar-brand{font-weight:800;letter-spacing:-.3px;color:#fff;}
+    .navbar-bt .nav-link{color:rgba(255,255,255,.75);font-size:.875rem;padding:.4rem .75rem;border-radius:.5rem;transition:background .15s,color .15s;}
+    .navbar-bt .nav-link:hover{background:rgba(255,255,255,.1);color:#fff;}
+    .navbar-bt .nav-link.active{background:rgba(255,255,255,.15);color:#fff;}
+    .navbar-user{color:rgba(255,255,255,.5);font-size:.8rem;padding:.4rem .75rem;}
+
+    /* ── Cards ── */
+    .card-soft{border:0;border-radius:1rem;box-shadow:var(--bt-card-shadow);}
+    .card-soft .card-header{background:transparent;border-bottom:1px solid rgba(0,0,0,.06);font-weight:600;}
+
+    /* ── Stat cards ── */
+    .stat-card{border-radius:.875rem;padding:1.25rem 1.5rem;color:#fff;display:flex;flex-direction:column;gap:.25rem;}
+    .stat-card .stat-val{font-size:2rem;font-weight:800;line-height:1;}
+    .stat-card .stat-lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;opacity:.85;}
+    .stat-open    {background:linear-gradient(135deg,#4f46e5,#818cf8);}
+    .stat-assigned{background:linear-gradient(135deg,#f59e0b,#fbbf24);}
+    .stat-closed  {background:linear-gradient(135deg,#10b981,#34d399);}
+    .stat-critical{background:linear-gradient(135deg,#ef4444,#f87171);}
+
+    /* ── Bug status badges ── */
+    .badge-open    {background:#4f46e5;color:#fff;}
+    .badge-assigned{background:#f59e0b;color:#fff;}
+    .badge-closed  {background:#10b981;color:#fff;}
+
+    /* ── Severity badges ── */
+    .sev-critical{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;}
+    .sev-major   {background:#ffedd5;color:#c2410c;border:1px solid #fdba74;}
+    .sev-minor   {background:#fef9c3;color:#854d0e;border:1px solid #fde047;}
+    .sev-trivial {background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;}
+
+    /* ── Comment thread ── */
+    .comment-thread{border-left:2px solid #e2e8f0;padding-left:.875rem;margin-top:.75rem;}
+    .comment-card{border-radius:.5rem;padding:.5rem .75rem;margin-bottom:.4rem;font-size:.85rem;}
+    .comment-card.manager  {background:#f5f3ff;border-left:3px solid #7c3aed;}
+    .comment-card.tester   {background:#eff6ff;border-left:3px solid #2563eb;}
+    .comment-card.developer{background:#f0fdf4;border-left:3px solid #16a34a;}
+    .comment-card .comment-meta{font-size:.75rem;color:#94a3b8;}
+
+    /* ── Activity timeline ── */
+    .activity-timeline{list-style:none;padding:0;margin:0;}
+    .activity-timeline li{position:relative;padding:.35rem 0 .35rem 1.4rem;font-size:.8rem;color:#475569;}
+    .activity-timeline li::before{content:'';position:absolute;left:.35rem;top:.65rem;width:.55rem;height:.55rem;border-radius:50%;background:#c7d2fe;}
+    .activity-timeline li.act-REPORTED::before   {background:#818cf8;}
+    .activity-timeline li.act-ASSIGNED::before   {background:#fbbf24;}
+    .activity-timeline li.act-MARKED_FOR_CLOSE::before{background:#fb923c;}
+    .activity-timeline li.act-CLOSED::before     {background:#34d399;}
+    .activity-timeline li.act-EDITED::before     {background:#94a3b8;}
+    .activity-timeline .act-when{color:#94a3b8;font-size:.74rem;margin-left:.35rem;}
+
+    /* ── Page headers ── */
+    .page-header{padding:1.5rem 0 1rem;border-bottom:1px solid #e2e8f0;margin-bottom:1.5rem;}
+    .page-header h1,.page-header h2{font-weight:800;color:#1e1b4b;margin-bottom:.15rem;}
+    .page-header .sub{color:#64748b;font-size:.9rem;}
+
+    /* ── Tables ── */
+    .table thead th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;white-space:nowrap;border-bottom:2px solid #e2e8f0;}
+    .table tbody tr:hover{background:#f8f7ff;}
+
+    /* ── Forms ── */
+    .form-label{font-weight:600;font-size:.85rem;color:#374151;}
+    .form-control:focus,.form-select:focus{border-color:var(--bt-primary);box-shadow:0 0 0 3px rgba(79,70,229,.15);}
+
+    /* ── Buttons ── */
+    .btn-primary{background:var(--bt-primary);border-color:var(--bt-primary);}
+    .btn-primary:hover{background:var(--bt-primary-dark);border-color:var(--bt-primary-dark);}
+
+    /* ── Misc ── */
+    .text-indent{color:#64748b;}
+    .empty-state{text-align:center;padding:3rem;color:#94a3b8;}
+    .empty-state i{font-size:2.5rem;display:block;margin-bottom:.75rem;}
+
+    /* ── Session-expired banner ── */
+    .session-banner{background:#fef3c7;color:#92400e;border-bottom:1px solid #fde68a;padding:.5rem 1rem;font-size:.85rem;text-align:center;}
+  </style>
+</head>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     NAVBAR FRAGMENT
+     ════════════════════════════════════════════════════════════════════ -->
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-bt">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/home">
+      <i class="bi bi-bug-fill"></i> BugTracker
+    </a>
+    <button class="navbar-toggler border-0" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navMain"
+            aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item" sec:authorize="hasRole('PROJECTMANAGER')">
+          <a class="nav-link" href="/manager/dashboard"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasRole('PROJECTMANAGER')">
+          <a class="nav-link" href="/manager/projects"><i class="bi bi-kanban me-1"></i>Projects</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasRole('TESTER')">
+          <a class="nav-link" href="/tester/dashboard"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasRole('TESTER')">
+          <a class="nav-link" href="/tester/bugs"><i class="bi bi-list-ul me-1"></i>My Bugs</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasRole('TESTER')">
+          <a class="nav-link" href="/tester/report-bug"><i class="bi bi-plus-circle me-1"></i>Report Bug</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasRole('DEVELOPER')">
+          <a class="nav-link" href="/developer/dashboard"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasRole('DEVELOPER')">
+          <a class="nav-link" href="/developer/projects"><i class="bi bi-folder me-1"></i>Projects</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasRole('DEVELOPER')">
+          <a class="nav-link" href="/developer/project"><i class="bi bi-bug me-1"></i>My Bugs</a>
+        </li>
+      </ul>
+      <!-- Right-side user menu -->
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item" sec:authorize="isAnonymous()">
+          <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a>
+        </li>
+        <li class="nav-item" sec:authorize="isAnonymous()">
+          <a class="nav-link" href="/register">Register</a>
+        </li>
+        <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#"
+             data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>
+            <span sec:authentication="principal.username" class="d-none d-lg-inline"
+                  style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8rem;"></span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="/account/change-password"><i class="bi bi-key me-2"></i>Change Password</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="/logout" class="px-2">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="dropdown-item text-danger border-0 bg-transparent p-0">
+                  <i class="bi bi-box-arrow-right me-2"></i>Logout
+                </button>
+              </form>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     COMMENT THREAD FRAGMENT
+     ════════════════════════════════════════════════════════════════════ -->
+<div th:fragment="comments(bugId, allComments, returnPath)">
+  <div class="comment-thread">
+    <div th:if="${allComments != null and allComments[bugId] != null and !#lists.isEmpty(allComments[bugId])}">
+      <div th:each="c : ${allComments[bugId]}"
+           th:class="${'comment-card ' + (c.authorCssClass != null ? c.authorCssClass : '')}">
+        <div class="d-flex justify-content-between align-items-center comment-meta mb-1">
+          <span class="fw-semibold" th:text="${c.authorName}"></span>
+          <span th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy HH:mm')}"></span>
+        </div>
+        <p class="mb-0" th:text="${c.body}"></p>
+      </div>
+    </div>
+    <p class="text-indent small mb-2"
+       th:if="${allComments == null or allComments[bugId] == null or #lists.isEmpty(allComments[bugId])}">
+      No comments yet.
+    </p>
+    <form th:action="@{/bugs/{id}/comments(id=${bugId})}" method="post"
+          class="d-flex gap-2 mt-1">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <input type="hidden" name="returnTo" th:value="${returnPath}">
+      <input class="form-control form-control-sm" name="body"
+             placeholder="Add a comment…" maxlength="1000" required>
+      <button class="btn btn-sm btn-outline-secondary text-nowrap" type="submit">
+        <i class="bi bi-send"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     ACTIVITY TIMELINE FRAGMENT
+     Usage: <div th:replace="~{layout :: activity(${activityList})}"></div>
+     ════════════════════════════════════════════════════════════════════ -->
+<div th:fragment="activity(events)">
+  <div th:if="${events != null and !#lists.isEmpty(events)}"
+       class="mt-2 pt-2 border-top">
+    <p class="small fw-semibold text-indent mb-1">
+      <i class="bi bi-clock-history me-1"></i>Activity
+    </p>
+    <ul class="activity-timeline">
+      <li th:each="e : ${events}"
+          th:classappend="${'act-' + e.actionType()}">
+        <span th:text="${e.detail()}"></span>
+        <span class="act-when"
+              th:text="${e.occurredAt() != null ? #temporals.format(e.occurredAt(), 'dd MMM HH:mm') : ''}"></span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Bootstrap JS — only loaded once here -->
+<div th:fragment="scripts">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
+</html>

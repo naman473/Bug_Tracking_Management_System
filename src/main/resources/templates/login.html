@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Login')}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container py-5" style="max-width:440px">
+  <div class="text-center mb-4">
+    <i class="bi bi-bug-fill" style="font-size:2.5rem;color:var(--bt-primary)"></i>
+    <h2 class="fw-bold mt-2">Sign in to BugTracker</h2>
+    <p class="text-indent small">Track, assign, and resolve bugs efficiently.</p>
+  </div>
+
+  <div class="card card-soft p-4">
+
+    <div class="alert alert-danger  d-flex gap-2" th:if="${errMessage}">
+      <i class="bi bi-exclamation-circle-fill"></i>
+      <span th:text="${errMessage}"></span>
+    </div>
+    <div class="alert alert-warning d-flex gap-2" th:if="${param.expired}">
+      <i class="bi bi-clock-history"></i>
+      <span>Your session has expired. Please sign in again.</span>
+    </div>
+
+    <div class="alert alert-success d-flex gap-2" th:if="${message}">
+      <i class="bi bi-check-circle-fill"></i>
+      <span th:text="${message}"></span>
+    </div>
+
+    <form method="post" action="/login">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <div class="mb-3">
+        <label class="form-label" for="email">Email address</label>
+        <input class="form-control" type="email" id="email" name="email"
+               autocomplete="username" required placeholder="you@example.com">
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="psw">Password</label>
+        <div class="input-group">
+          <input class="form-control" type="password" id="psw" name="psw"
+                 autocomplete="current-password" required placeholder="••••••••">
+          <button class="btn btn-outline-secondary" type="button" id="togglePsw" tabindex="-1">
+            <i class="bi bi-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+      </div>
+      <button class="btn btn-primary w-100" type="submit">
+        <i class="bi bi-box-arrow-in-right me-1"></i>Sign in
+      </button>
+    </form>
+
+    <hr class="my-3">
+    <div class="text-center small text-indent">
+      Don't have an account? <a href="/register" class="text-decoration-none fw-semibold">Register</a>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+<script>
+  const btn = document.getElementById('togglePsw');
+  const psw = document.getElementById('psw');
+  const eye = document.getElementById('eyeIcon');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const show = psw.type === 'password';
+      psw.type = show ? 'text' : 'password';
+      eye.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+    });
+  }
+</script>
+</body>
+</html>

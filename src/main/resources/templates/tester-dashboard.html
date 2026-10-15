@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Tester Dashboard')}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container py-5">
+  <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h2><i class="bi bi-speedometer2 me-2"></i>Tester Dashboard</h2>
+      <p class="sub">Track bugs you've reported across all your projects.</p>
+    </div>
+    <a class="btn btn-primary" href="/tester/report-bug">
+      <i class="bi bi-plus-lg me-1"></i>Report Bug
+    </a>
+  </div>
+
+  <!-- Stat bar — use size selectors on enum.dbValue to avoid ClassCastException -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-open" style="background:linear-gradient(135deg,#6366f1,#818cf8)">
+        <div class="stat-val" th:text="${#lists.size(bugs)}">0</div>
+        <div class="stat-lbl">Total reported</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-open" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">
+        <div class="stat-val"
+             th:text="${#lists.size(bugs.?[bugStatus.dbValue == 'Open'])}">0</div>
+        <div class="stat-lbl"><i class="bi bi-circle me-1"></i>Open</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-assigned">
+        <div class="stat-val"
+             th:text="${#lists.size(bugs.?[bugStatus.dbValue == 'Assigned'])}">0</div>
+        <div class="stat-lbl"><i class="bi bi-person-check me-1"></i>Assigned</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-closed">
+        <div class="stat-val"
+             th:text="${#lists.size(bugs.?[bugStatus.dbValue == 'Closed'])}">0</div>
+        <div class="stat-lbl"><i class="bi bi-check-circle me-1"></i>Closed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick nav -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <a class="card card-soft p-3 d-flex flex-row align-items-center gap-3 text-decoration-none text-dark"
+         href="/tester/report-bug">
+        <div class="rounded-3 p-2 bg-danger bg-opacity-10 text-danger fs-4">
+          <i class="bi bi-bug-fill"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Report a Bug</div>
+          <div class="text-indent small">Submit a new bug on one of your projects</div>
+        </div>
+        <i class="bi bi-chevron-right ms-auto text-indent"></i>
+      </a>
+    </div>
+    <div class="col-md-6">
+      <a class="card card-soft p-3 d-flex flex-row align-items-center gap-3 text-decoration-none text-dark"
+         href="/tester/bugs">
+        <div class="rounded-3 p-2 bg-primary bg-opacity-10 text-primary fs-4">
+          <i class="bi bi-list-ul"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">All My Bugs</div>
+          <div class="text-indent small">View, edit, and comment on your reported bugs</div>
+        </div>
+        <i class="bi bi-chevron-right ms-auto text-indent"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent bugs preview -->
+  <div class="card card-soft">
+    <div class="card-header px-3 py-2">
+      <i class="bi bi-clock-history me-1"></i>Recent bugs
+    </div>
+    <div th:if="${#lists.isEmpty(bugs)}" class="empty-state py-4">
+      <i class="bi bi-bug text-indent"></i>
+      <div>No bugs reported yet.</div>
+      <a class="btn btn-primary btn-sm mt-2" href="/tester/report-bug">Report your first bug</a>
+    </div>
+    <div th:each="bug,iter : ${bugs}" th:if="${iter.index < 5}"
+         class="d-flex justify-content-between align-items-center p-3 border-bottom">
+      <div>
+        <span class="fw-semibold small" th:text="${bug.bugTitle}"></span>
+        <span class="text-indent small ms-2" th:text="${'· ' + bug.projectName}"></span>
+      </div>
+      <div class="d-flex gap-1">
+        <span th:text="${bug.bugStatus.dbValue}" class="badge rounded-pill"
+              th:classappend="${bug.bugStatus.dbValue == 'Open' ? 'badge-open' : bug.bugStatus.dbValue == 'Assigned' ? 'badge-assigned' : 'badge-closed'}"></span>
+        <span th:if="${bug.severity != null}" th:text="${bug.severity.dbValue}" class="badge"
+              th:classappend="${bug.severity.dbValue == 'critical' ? 'sev-critical' : bug.severity.dbValue == 'major' ? 'sev-major' : bug.severity.dbValue == 'minor' ? 'sev-minor' : 'sev-trivial'}"></span>
+      </div>
+    </div>
+    <div th:if="${#lists.size(bugs) > 5}" class="p-2 text-center">
+      <a class="btn btn-outline-secondary btn-sm" href="/tester/bugs">
+        View all <span th:text="${#lists.size(bugs)}"></span> bugs
+      </a>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

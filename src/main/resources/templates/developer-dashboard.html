@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Developer Dashboard')}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container py-5">
+  <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h2><i class="bi bi-speedometer2 me-2"></i>Developer Dashboard</h2>
+      <p class="sub">Welcome, <strong th:text="${userName}"></strong></p>
+    </div>
+    <a class="btn btn-primary" href="/developer/project">
+      <i class="bi bi-bug me-1"></i>My Bugs
+    </a>
+  </div>
+
+  <!-- Stats row -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-assigned h-100">
+        <div class="stat-val" th:text="${assignedCount}">0</div>
+        <div class="stat-lbl"><i class="bi bi-person-check me-1"></i>Assigned to me</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-open h-100" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">
+        <div class="stat-val" th:text="${stats.open}">0</div>
+        <div class="stat-lbl"><i class="bi bi-circle me-1"></i>Open in projects</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-critical h-100">
+        <div class="stat-val" th:text="${stats.critical}">0</div>
+        <div class="stat-lbl"><i class="bi bi-exclamation-triangle me-1"></i>Critical</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-closed h-100">
+        <div class="stat-val" th:text="${stats.closed}">0</div>
+        <div class="stat-lbl"><i class="bi bi-check-circle me-1"></i>Closed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick links -->
+  <div class="row g-3">
+    <div class="col-md-6">
+      <a class="card card-soft p-3 d-flex flex-row align-items-center gap-3 text-decoration-none text-dark"
+         href="/developer/projects">
+        <div class="rounded-3 p-2 bg-primary bg-opacity-10 text-primary fs-4">
+          <i class="bi bi-folder-fill"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">My Projects</div>
+          <div class="text-indent small">View all projects you're assigned to</div>
+        </div>
+        <i class="bi bi-chevron-right ms-auto text-indent"></i>
+      </a>
+    </div>
+    <div class="col-md-6">
+      <a class="card card-soft p-3 d-flex flex-row align-items-center gap-3 text-decoration-none text-dark"
+         href="/developer/project">
+        <div class="rounded-3 p-2 bg-warning bg-opacity-10 text-warning fs-4">
+          <i class="bi bi-bug-fill"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">My Assigned Bugs</div>
+          <div class="text-indent small">View and work on bugs assigned to you</div>
+        </div>
+        <i class="bi bi-chevron-right ms-auto text-indent"></i>
+      </a>
+    </div>
+    <div class="col-md-6">
+      <a class="card card-soft p-3 d-flex flex-row align-items-center gap-3 text-decoration-none text-dark"
+         href="/account/change-password">
+        <div class="rounded-3 p-2 bg-secondary bg-opacity-10 text-secondary fs-4">
+          <i class="bi bi-key-fill"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Change Password</div>
+          <div class="text-indent small">Update your account password</div>
+        </div>
+        <i class="bi bi-chevron-right ms-auto text-indent"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

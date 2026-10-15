@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Register')}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container py-5" style="max-width:480px">
+  <div class="text-center mb-4">
+    <i class="bi bi-person-plus-fill" style="font-size:2.5rem;color:var(--bt-primary)"></i>
+    <h2 class="fw-bold mt-2">Create Account</h2>
+    <p class="text-indent small">Your email must have been imported by an admin first.</p>
+  </div>
+
+  <div class="card card-soft p-4">
+
+    <div class="alert d-flex gap-2"
+         th:if="${message}"
+         th:classappend="${msgType == 'success' ? 'alert-success' : 'alert-danger'}">
+      <i th:classappend="${msgType == 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-circle-fill'}"></i>
+      <span th:text="${message}"></span>
+    </div>
+
+    <form method="post" action="/register" id="regForm">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <div class="mb-3">
+        <label class="form-label" for="email">Email address</label>
+        <input class="form-control" type="email" id="email" name="email"
+               autocomplete="username" required placeholder="you@example.com">
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="role">Role</label>
+        <select class="form-select" id="role" name="role" required>
+          <option value="">Select your role…</option>
+          <option value="ProjectManager">Project Manager</option>
+          <option value="Developer">Developer</option>
+          <option value="Tester">Tester</option>
+        </select>
+      </div>
+      <div class="mb-2">
+        <label class="form-label" for="psw">Password</label>
+        <div class="input-group">
+          <input class="form-control" type="password" id="psw" name="psw"
+                 autocomplete="new-password" required placeholder="Choose a strong password">
+          <button class="btn btn-outline-secondary" type="button" id="togglePsw" tabindex="-1">
+            <i class="bi bi-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+        <!-- Password strength bar -->
+        <div class="mt-1" style="height:4px;border-radius:2px;background:#e2e8f0;overflow:hidden">
+          <div id="strengthBar" style="height:100%;width:0;transition:width .3s,background .3s;border-radius:2px"></div>
+        </div>
+        <div class="form-text" id="strengthHint">Min 8 chars · letter · digit · special character</div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="pswConfirm">Confirm password</label>
+        <input class="form-control" type="password" id="pswConfirm"
+               autocomplete="new-password" required placeholder="Repeat your password">
+        <div class="invalid-feedback">Passwords do not match.</div>
+      </div>
+      <button class="btn btn-primary w-100" type="submit" id="submitBtn">
+        <i class="bi bi-person-check me-1"></i>Register
+      </button>
+    </form>
+
+    <hr class="my-3">
+    <div class="text-center small text-indent">
+      Already have an account? <a href="/login" class="text-decoration-none fw-semibold">Sign in</a>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+<script>
+  // Password visibility toggle
+  const toggleBtn = document.getElementById('togglePsw');
+  const pswInput  = document.getElementById('psw');
+  const eyeIcon   = document.getElementById('eyeIcon');
+  toggleBtn.addEventListener('click', () => {
+    const show = pswInput.type === 'password';
+    pswInput.type = show ? 'text' : 'password';
+    eyeIcon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+  });
+
+  // Password strength indicator
+  const strengthBar  = document.getElementById('strengthBar');
+  const strengthHint = document.getElementById('strengthHint');
+  pswInput.addEventListener('input', () => {
+    const v = pswInput.value;
+    let score = 0;
+    if (v.length >= 8) score++;
+    if (/[A-Za-z]/.test(v)) score++;
+    if (/[0-9]/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
+    const pct  = (score / 4) * 100;
+    const cols = ['#ef4444','#f59e0b','#eab308','#10b981'];
+    const lbls = ['Too weak','Fair','Good','Strong'];
+    strengthBar.style.width   = pct + '%';
+    strengthBar.style.background = cols[score - 1] || '#e2e8f0';
+    strengthHint.textContent = score > 0 ? lbls[score - 1] : 'Min 8 chars · letter · digit · special character';
+  });
+
+  // Confirm-password match validation
+  const pswConfirm = document.getElementById('pswConfirm');
+  const form       = document.getElementById('regForm');
+  form.addEventListener('submit', e => {
+    if (pswInput.value !== pswConfirm.value) {
+      pswConfirm.classList.add('is-invalid');
+      e.preventDefault();
+    } else {
+      pswConfirm.classList.remove('is-invalid');
+    }
+  });
+  pswConfirm.addEventListener('input', () => {
+    if (pswInput.value === pswConfirm.value) pswConfirm.classList.remove('is-invalid');
+  });
+</script>
+</body>
+</html>

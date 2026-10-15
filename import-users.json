@@ -1,0 +1,8 @@
+[
+  { "userEmail": "manager1@example.com", "userName": "Pranjal", "userRole": "Project Manager" },
+  { "userEmail": "manager2@example.com", "userName": "Naman",   "userRole": "Project Manager" },
+  { "userEmail": "dev1@example.com",     "userName": "Rudra",   "userRole": "Developer" },
+  { "userEmail": "dev2@example.com",     "userName": "Divyanshu",     "userRole": "Developer" },
+  { "userEmail": "tester1@example.com",  "userName": "Shashi",    "userRole": "Tester" },
+  { "userEmail": "tester2@example.com",  "userName": "Aditya",  "userRole": "Tester" }
+]

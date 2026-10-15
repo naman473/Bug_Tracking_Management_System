@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Manager Dashboard')}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container py-5">
+  <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+      <h2><i class="bi bi-speedometer2 me-2"></i>Manager Dashboard</h2>
+      <p class="sub">Welcome back, <strong th:text="${userName}"></strong></p>
+    </div>
+    <a class="btn btn-primary" href="/manager/projects/new">
+      <i class="bi bi-plus-lg me-1"></i>New Project
+    </a>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-open h-100">
+        <div class="stat-val" th:text="${projectCounter}">0</div>
+        <div class="stat-lbl"><i class="bi bi-kanban me-1"></i>Projects</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card h-100" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">
+        <div class="stat-val" th:text="${totalOpen}">0</div>
+        <div class="stat-lbl"><i class="bi bi-circle me-1"></i>Open bugs</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-assigned h-100">
+        <div class="stat-val" th:text="${totalAssigned}">0</div>
+        <div class="stat-lbl"><i class="bi bi-person-check me-1"></i>Assigned</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-critical h-100">
+        <div class="stat-val" th:text="${totalCritical}">0</div>
+        <div class="stat-lbl"><i class="bi bi-exclamation-triangle me-1"></i>Critical</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <a class="card card-soft p-3 d-flex flex-row align-items-center gap-3 text-decoration-none text-dark"
+         href="/manager/projects">
+        <div class="rounded-3 p-2 bg-primary bg-opacity-10 text-primary fs-4">
+          <i class="bi bi-kanban-fill"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">View Projects</div>
+          <div class="text-indent small">Manage your active projects</div>
+        </div>
+        <i class="bi bi-chevron-right ms-auto text-indent"></i>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a class="card card-soft p-3 d-flex flex-row align-items-center gap-3 text-decoration-none text-dark"
+         href="/manager/projects/new">
+        <div class="rounded-3 p-2 bg-success bg-opacity-10 text-success fs-4">
+          <i class="bi bi-plus-circle-fill"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Create Project</div>
+          <div class="text-indent small">Start a new project and assign team</div>
+        </div>
+        <i class="bi bi-chevron-right ms-auto text-indent"></i>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a class="card card-soft p-3 d-flex flex-row align-items-center gap-3 text-decoration-none text-dark"
+         href="/account/change-password">
+        <div class="rounded-3 p-2 bg-secondary bg-opacity-10 text-secondary fs-4">
+          <i class="bi bi-key-fill"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Change Password</div>
+          <div class="text-indent small">Update your account password</div>
+        </div>
+        <i class="bi bi-chevron-right ms-auto text-indent"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Account info -->
+  <div class="card card-soft p-4">
+    <h6 class="fw-semibold mb-3 text-indent">Account Details</h6>
+    <div class="row g-3">
+      <div class="col-sm-4">
+        <span class="text-indent small d-block">Email</span>
+        <div class="fw-semibold" th:text="${email}"></div>
+      </div>
+      <div class="col-sm-4">
+        <span class="text-indent small d-block">Projects managed</span>
+        <div class="fw-semibold" th:text="${projectCounter}"></div>
+      </div>
+      <div class="col-sm-4">
+        <span class="text-indent small d-block">Last login</span>
+        <div class="fw-semibold" th:text="${lastLogin}"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

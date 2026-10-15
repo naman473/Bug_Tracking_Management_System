@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Import Users')}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container py-5" style="max-width:640px">
+  <div class="page-header">
+    <h2><i class="bi bi-upload me-2"></i>Import Users</h2>
+    <p class="sub">Upload a JSON file to add users to the allowlist.</p>
+  </div>
+
+  <div class="alert alert-success d-flex gap-2" th:if="${message}">
+    <i class="bi bi-check-circle-fill"></i><span th:text="${message}"></span>
+  </div>
+
+  <div class="card card-soft p-4 mb-4">
+    <form method="post" action="/import-users" enctype="multipart/form-data" id="importForm">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <div class="mb-3">
+        <label class="form-label" for="file">JSON file</label>
+        <input class="form-control" type="file" id="file" name="file"
+               accept=".json,application/json" required>
+        <div class="form-text">Max file size: 5 MB. Must be a <code>.json</code> file.</div>
+      </div>
+      <button class="btn btn-primary" type="submit" id="submitBtn">
+        <i class="bi bi-cloud-upload me-1"></i>Import
+      </button>
+    </form>
+  </div>
+
+  <!-- Format spec card -->
+  <div class="card card-soft p-4">
+    <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-code me-1"></i>Expected JSON format</h6>
+    <p class="text-indent small mb-2">An array of user objects with these fields:</p>
+    <pre class="bg-light rounded p-3 small mb-0" style="overflow-x:auto">[
+  {
+    "userId":    "alice",
+    "userName":  "Alice Smith",
+    "userEmail": "alice@example.com",
+    "userRole":  "Developer"
+  },
+  {
+    "userId":    "bob",
+    "userName":  "Bob Jones",
+    "userEmail": "bob@example.com",
+    "userRole":  "Tester"
+  }
+]</pre>
+    <p class="text-indent small mt-2 mb-0">
+      Valid roles: <strong>ProjectManager</strong>, <strong>Developer</strong>, <strong>Tester</strong>
+    </p>
+  </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+<script>
+  document.getElementById('importForm').addEventListener('submit', e => {
+    const file = document.getElementById('file').files[0];
+    if (file && !file.name.endsWith('.json')) {
+      alert('Please select a .json file.');
+      e.preventDefault();
+    }
+  });
+</script>
+</body>
+</html>

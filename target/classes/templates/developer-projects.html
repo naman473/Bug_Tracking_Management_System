@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('My Projects')}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container py-5">
+  <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h2><i class="bi bi-folder me-2"></i>My Projects</h2>
+      <p class="sub" th:text="${#lists.size(projects)} + ' project(s) assigned'"></p>
+    </div>
+    <a class="btn btn-outline-primary btn-sm" href="/developer/project">
+      <i class="bi bi-bug me-1"></i>View Assigned Bugs
+    </a>
+  </div>
+
+  <div th:if="${#lists.isEmpty(projects)}" class="card card-soft">
+    <div class="empty-state py-5">
+      <i class="bi bi-folder2-open text-indent"></i>
+      <div class="fw-semibold mb-1">No projects assigned yet</div>
+      <p class="small text-indent">Contact your Project Manager to be added to a project.</p>
+    </div>
+  </div>
+
+  <div th:if="${!#lists.isEmpty(projects)}" class="row g-3">
+    <div class="col-md-6 col-lg-4" th:each="project : ${projects}">
+      <div class="card card-soft h-100 p-3">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h6 class="fw-bold mb-0" th:text="${project.projectName}"></h6>
+          <span class="badge rounded-pill"
+                th:classappend="${project.projectStateValue == 'InProgress' ? 'bg-primary' : 'bg-secondary'}"
+                th:text="${project.projectStateValue}"></span>
+        </div>
+        <p class="text-indent small mb-2" th:text="${project.projectDesc}"></p>
+        <div class="text-indent small mb-3">
+          <i class="bi bi-calendar3 me-1"></i>
+          <span th:text="${project.startDate}"></span>
+        </div>
+        <a class="btn btn-outline-primary btn-sm mt-auto"
+           th:href="@{/developer/project(name=${project.projectName})}">
+          <i class="bi bi-bug me-1"></i>View Bugs
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
